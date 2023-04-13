@@ -1,0 +1,36 @@
+name: omc build
+
+on:
+  push:
+    branches:
+#      - 'omc/*'
+
+jobs:
+  assemble:
+    name: assemble release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: 17
+        java-package: jdk
+    - name: Prepare caches
+      uses: ./.github/actions/gradle-caches
+
+    - name: Initialize gradle settings
+      run: ./gradlew localSettings
+
+    - name: Assemble release
+      run: |
+        ./gradlew assembleRelease
+        pwd
+        echo 'release dir contents'
+        ls lucene/distribution/build/release
+        tar -xf lucene/distribution/build/release/lucene-9.4.2-SNAPSHOT.tgz
+        echo 'extracted'
+        ls lucene/distribution/build/release
+        echo 'base dir'
+        ls
